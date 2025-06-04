@@ -4,6 +4,7 @@
   "description": "Lightweight Puppeteer API for ConTROLL MRI",
   "main": "puppeteer_server.js",
   "scripts": {
+    "postinstall": "PUPPETEER_SKIP_DOWNLOAD=true",
     "start": "node puppeteer_server.js"
   },
   "dependencies": {
