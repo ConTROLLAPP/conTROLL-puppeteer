@@ -1,0 +1,18 @@
+{
+  "name": "conTROLL-puppeteer",
+  "version": "1.0.0",
+  "description": "Lightweight Puppeteer API for ConTROLL MRI",
+  "main": "puppeteer_server.js",
+  "scripts": {
+    "start": "node puppeteer_server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "puppeteer": "^21.3.8",
+    "axios": "^1.6.8",
+    "cors": "^2.8.5"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
