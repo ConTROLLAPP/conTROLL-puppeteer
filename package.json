@@ -1,18 +1,20 @@
 {
-  "name": "conTROLL-puppeteer",
+  "name": "controll-puppeteer-server",
   "version": "1.0.0",
-  "description": "Lightweight Puppeteer API for ConTROLL MRI",
+  "description": "Puppeteer scraping server for ConTROLL",
   "main": "puppeteer_server.js",
   "scripts": {
     "start": "node puppeteer_server.js"
   },
   "dependencies": {
-    "express": "^4.18.2",
-    "puppeteer": "^21.3.8",
     "axios": "^1.6.8",
-    "cors": "^2.8.5"
+    "cheerio": "^1.0.0-rc.12",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "puppeteer": "^21.3.8"
   },
   "engines": {
     "node": ">=18"
-  }
+  },
+  "license": "MIT"
 }
