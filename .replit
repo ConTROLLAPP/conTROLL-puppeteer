@@ -1,1 +1,21 @@
 
+run = "node puppeteer_server.js"
+language = "nodejs"
+
+[env]
+NODE_ENV = "production"
+
+[nix]
+channel = "stable-24.1"
+
+[deployment]
+run = ["sh", "-c", "node puppeteer_server.js"]
+
+[languages]
+
+[languages.javascript]
+pattern = "**/*.{js,jsx,ts,tsx}"
+
+[languages.javascript.languageServer]
+start = "typescript-language-server --stdio"
+
