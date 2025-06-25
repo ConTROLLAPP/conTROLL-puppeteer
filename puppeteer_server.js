@@ -2,41 +2,13 @@ const express = require('express');
 const puppeteer = require('puppeteer');
 const cors = require('cors');
 const cheerio = require('cheerio');
-const { execSync } = require('child_process');
+
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Function to detect available browser
-async function detectBrowser() {
-  console.log('🔍 Detecting available browser...');
-  
-  // Check for existing Chrome installations
-  const chromePaths = [
-    '/usr/bin/google-chrome-stable',
-    '/usr/bin/google-chrome',
-    '/usr/bin/chromium-browser',
-    '/usr/bin/chromium',
-    process.env.CHROME_BIN,
-    process.env.PUPPETEER_EXECUTABLE_PATH
-  ].filter(Boolean);
-
-  for (const path of chromePaths) {
-    try {
-      execSync(`test -f ${path}`, { stdio: 'ignore' });
-      console.log(`✅ Chrome found at: ${path}`);
-      return path;
-    } catch (e) {
-      // Continue checking
-    }
-  }
-  
-  console.log('⚠️ No system Chrome found - using Puppeteer bundled Chromium');
-  return null; // Use bundled Chromium
-}
-
-// Initialize browser detection on startup
-detectBrowser();
+// Use Puppeteer's bundled Chromium directly
+console.log('🚀 Using Puppeteer bundled Chromium (no system Chrome detection needed)');
 
 app.use(cors());
 app.use(express.json({ limit: '10mb' })); // Handle JSON POST requests with size limit
@@ -103,9 +75,6 @@ async function handleScrapeRequest(req, res) {
   console.log(`🌐 Scraping: ${url}`);
 
   try {
-    // Detect available browser
-    const chromePath = await detectBrowser();
-    
     const launchOptions = { 
       args: [
         '--no-sandbox', 
@@ -130,15 +99,7 @@ async function handleScrapeRequest(req, res) {
       timeout: 60000
     };
 
-    // Only set executable path if system Chrome is found
-    if (chromePath) {
-      launchOptions.executablePath = chromePath;
-      console.log(`🚀 Using system Chrome: ${chromePath}`);
-    } else {
-      console.log(`🚀 Using Puppeteer bundled Chromium`);
-    }
-
-    console.log(`🚀 Launching browser...`);
+    console.log(`🚀 Launching Puppeteer with bundled Chromium...`);
     
     const browser = await puppeteer.launch(launchOptions);
     console.log(`✅ Browser launched successfully`);
