@@ -7,79 +7,36 @@ const { execSync } = require('child_process');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Function to install Chrome if missing
-async function ensureChromeInstalled() {
-  try {
-    // Try to find Chrome executable
-    const chromePaths = [
-      '/usr/bin/google-chrome-stable',
-      '/usr/bin/google-chrome',
-      '/usr/bin/chromium-browser',
-      '/usr/bin/chromium',
-      process.env.CHROME_BIN,
-      process.env.PUPPETEER_EXECUTABLE_PATH
-    ].filter(Boolean);
+// Function to detect available browser
+async function detectBrowser() {
+  console.log('🔍 Detecting available browser...');
+  
+  // Check for existing Chrome installations
+  const chromePaths = [
+    '/usr/bin/google-chrome-stable',
+    '/usr/bin/google-chrome',
+    '/usr/bin/chromium-browser',
+    '/usr/bin/chromium',
+    process.env.CHROME_BIN,
+    process.env.PUPPETEER_EXECUTABLE_PATH
+  ].filter(Boolean);
 
-    for (const path of chromePaths) {
-      try {
-        execSync(`test -f ${path}`, { stdio: 'ignore' });
-        console.log(`✅ Chrome found at: ${path}`);
-        process.env.PUPPETEER_EXECUTABLE_PATH = path;
-        return path;
-      } catch (e) {
-        // Continue checking
-      }
-    }
-
-    console.log('⚠️ Chrome not found, attempting installation...');
-    
-    // Install Chrome on Linux (Render-compatible)
+  for (const path of chromePaths) {
     try {
-      // Use which to check if chrome exists in PATH
-      try {
-        const whichResult = execSync('which google-chrome-stable', { encoding: 'utf8' }).trim();
-        if (whichResult) {
-          console.log(`✅ Chrome found via which: ${whichResult}`);
-          process.env.PUPPETEER_EXECUTABLE_PATH = whichResult;
-          return whichResult;
-        }
-      } catch (e) {
-        // Chrome not in PATH, continue with installation
-      }
-
-      // Try installing dependencies for Chromium
-      console.log('📦 Installing Chrome dependencies...');
-      execSync('apt-get update && apt-get install -y wget gnupg2 software-properties-common', { stdio: 'pipe', timeout: 60000 });
-      
-      // Add Google Chrome repository
-      execSync('wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | apt-key add -', { stdio: 'pipe', timeout: 30000 });
-      execSync('echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list', { stdio: 'pipe' });
-      
-      // Install Chrome
-      execSync('apt-get update && apt-get install -y google-chrome-stable', { stdio: 'pipe', timeout: 120000 });
-      
-      const installedPath = '/usr/bin/google-chrome-stable';
-      
-      // Verify installation
-      execSync(`test -f ${installedPath}`, { stdio: 'ignore' });
-      process.env.PUPPETEER_EXECUTABLE_PATH = installedPath;
-      console.log(`✅ Chrome installed successfully at: ${installedPath}`);
-      return installedPath;
-      
-    } catch (installError) {
-      console.log(`❌ Chrome installation failed: ${installError.message}`);
-      console.log('🔄 Attempting to use bundled Chromium...');
-      return null;
+      execSync(`test -f ${path}`, { stdio: 'ignore' });
+      console.log(`✅ Chrome found at: ${path}`);
+      return path;
+    } catch (e) {
+      // Continue checking
     }
-  } catch (error) {
-    console.log(`⚠️ Chrome check failed: ${error.message}`);
-    console.log('🔄 Will attempt with bundled Chromium');
-    return null;
   }
+  
+  console.log('⚠️ No system Chrome found - using Puppeteer bundled Chromium');
+  return null; // Use bundled Chromium
 }
 
-// Initialize Chrome on startup
-ensureChromeInstalled();
+// Initialize browser detection on startup
+detectBrowser();
 
 app.use(cors());
 app.use(express.json({ limit: '10mb' })); // Handle JSON POST requests with size limit
@@ -146,8 +103,8 @@ async function handleScrapeRequest(req, res) {
   console.log(`🌐 Scraping: ${url}`);
 
   try {
-    // Ensure Chrome is available before launching
-    const chromePath = await ensureChromeInstalled();
+    // Detect available browser
+    const chromePath = await detectBrowser();
     
     const launchOptions = { 
       args: [
@@ -166,42 +123,25 @@ async function handleScrapeRequest(req, res) {
         '--disable-features=VizDisplayCompositor',
         '--disable-features=site-per-process',
         '--disable-blink-features=AutomationControlled',
+        '--disable-ipc-flooding-protection',
         '--window-size=1920x1080'
       ],
-      headless: 'new'
+      headless: 'new',
+      timeout: 60000
     };
 
-    // Set executable path if Chrome was found/installed
+    // Only set executable path if system Chrome is found
     if (chromePath) {
       launchOptions.executablePath = chromePath;
+      console.log(`🚀 Using system Chrome: ${chromePath}`);
+    } else {
+      console.log(`🚀 Using Puppeteer bundled Chromium`);
     }
 
-    console.log(`🚀 Launching browser with options:`, JSON.stringify(launchOptions, null, 2));
+    console.log(`🚀 Launching browser...`);
     
-    let browser;
-    try {
-      browser = await puppeteer.launch(launchOptions);
-      console.log(`✅ Browser launched successfully`);
-    } catch (launchError) {
-      console.log(`❌ Initial browser launch failed: ${launchError.message}`);
-      
-      // Try fallback options if Chrome path was set
-      if (chromePath) {
-        console.log(`🔄 Trying fallback launch without executablePath...`);
-        const fallbackOptions = { ...launchOptions };
-        delete fallbackOptions.executablePath;
-        
-        try {
-          browser = await puppeteer.launch(fallbackOptions);
-          console.log(`✅ Browser launched with fallback options`);
-        } catch (fallbackError) {
-          console.log(`❌ Fallback launch also failed: ${fallbackError.message}`);
-          throw new Error(`Browser launch failed: ${launchError.message}`);
-        }
-      } else {
-        throw launchError;
-      }
-    }
+    const browser = await puppeteer.launch(launchOptions);
+    console.log(`✅ Browser launched successfully`);
 
     const page = await browser.newPage();
 
