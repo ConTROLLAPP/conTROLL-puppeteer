@@ -81,10 +81,15 @@ async function handleScrapeRequest(req, res) {
         '--disable-extensions',
         '--disable-default-apps',
         '--disable-features=TranslateUI',
+        '--disable-background-timer-throttling',
+        '--disable-backgrounding-occluded-windows',
+        '--disable-renderer-backgrounding',
+        '--disable-web-security',
+        '--disable-features=VizDisplayCompositor',
         '--window-size=1920x1080'
       ],
       headless: true,
-      executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined
+      executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || process.env.CHROME_BIN || undefined
     });
 
     const page = await browser.newPage();
