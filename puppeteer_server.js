@@ -78,6 +78,9 @@ async function handleScrapeRequest(req, res) {
         '--disable-dev-shm-usage',
         '--disable-accelerated-2d-canvas',
         '--disable-gpu',
+        '--disable-extensions',
+        '--disable-default-apps',
+        '--disable-features=TranslateUI',
         '--window-size=1920x1080'
       ],
       headless: true,
