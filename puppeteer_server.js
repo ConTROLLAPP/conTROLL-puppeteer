@@ -53,7 +53,6 @@ async function handleScrapeRequest(req, res) {
 
     const browser = await puppeteer.launch({
       headless: 'new',
-      executablePath: process.env.CHROME_BIN || '/usr/bin/chromium',
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
