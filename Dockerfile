@@ -1,6 +1,6 @@
 FROM node:18-slim
 
-# Install Chromium and dependencies
+# Install Chromium and all necessary dependencies
 RUN apt-get update && apt-get install -y \
     chromium \
     fonts-liberation \
@@ -25,5 +25,11 @@ WORKDIR /app
 COPY . .
 
 RUN npm install
+
+# Diagnostic: Show where chromium and chromium-browser are located,
+# and list the /usr/bin directory, for debugging Render builds.
+RUN which chromium || true
+RUN which chromium-browser || true
+RUN ls -l /usr/bin/
 
 CMD ["node", "puppeteer_server.js"]
