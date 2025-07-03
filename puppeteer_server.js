@@ -113,4 +113,52 @@ async function handleScrapeRequest(req, res) {
     const phones = html.match(/\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/g) || [];
 
     const links = [];
-    $('a').each((_, el) =>
+    $('a').each((_, el) => {
+      const href = $(el).attr('href');
+      const linkText = $(el).text().trim();
+      if (href) links.push({ href, text: linkText });
+    });
+
+    await browser.close();
+
+    res.json({
+      success: true,
+      url,
+      html,
+      content: html,
+      extractedData: {
+        emails: [...new Set(emails)],
+        phones: [...new Set(phones)],
+        text: text.slice(0, 5000),
+        links
+      },
+      timestamp: new Date().toISOString(),
+      method: 'puppeteer'
+    });
+
+  } catch (error) {
+    console.error(`❌ Scraping failed:`, error.message);
+
+    const errOut = {
+      success: false,
+      error: 'Scraping failed',
+      details: error.message,
+      timestamp: new Date().toISOString()
+    };
+
+    if (error.message.includes('chrome') || error.message.includes('chromium')) {
+      errOut.error = 'Chrome launch error';
+      errOut.fallback_suggestion = 'Use ScraperAPI or Cheerio fallback';
+    } else if (error.message.includes('timeout')) {
+      errOut.error = 'Navigation timeout';
+    } else if (error.message.includes('net::ERR_')) {
+      errOut.error = 'Navigation failed';
+    }
+
+    res.status(500).json(errOut);
+  }
+}
+
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`✅ Puppeteer server running at http://0.0.0.0:${PORT}`);
+});
