@@ -1,0 +1,41 @@
+[
+  {
+    "domain": ".yelp.com",
+    "expirationDate": 1751007474,
+    "hostOnly": false,
+    "httpOnly": false,
+    "name": "yuv",
+    "path": "/",
+    "sameSite": "Lax",
+    "secure": true,
+    "session": false,
+    "storeId": null,
+    "value": "uOlNwbUZKj8vZ0DxdKPuWg"
+  },
+  {
+    "domain": ".yelp.com",
+    "expirationDate": 1751007474,
+    "hostOnly": false,
+    "httpOnly": false,
+    "name": "bse",
+    "path": "/",
+    "sameSite": "Lax",
+    "secure": true,
+    "session": false,
+    "storeId": null,
+    "value": "9c91dc1e2c274ee9833e34ed6408825c"
+  },
+  {
+    "domain": ".yelp.com",
+    "expirationDate": 1751007474,
+    "hostOnly": false,
+    "httpOnly": false,
+    "name": "ysc",
+    "path": "/",
+    "sameSite": "Lax",
+    "secure": true,
+    "session": false,
+    "storeId": null,
+    "value": "lwJMRx1BQpykO3I-DjZQQ8yDGHuYiVNGyDj9e0g3KyF5zAcVoF2ZsbFzWHzegovT"
+  }
+]
