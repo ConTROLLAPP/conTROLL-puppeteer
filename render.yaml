@@ -1,15 +1,6 @@
 services:
   - type: web
     name: controll-puppeteer
-    env: node
-    buildCommand: "npm install && npm run build"
-    startCommand: "npm start"
     envVars:
       - key: NODE_ENV
         value: production
-      - key: PUPPETEER_SKIP_CHROMIUM_DOWNLOAD
-        value: false
-      - key: PUPPETEER_CACHE_DIR
-        value: /opt/render/.cache
-      - key: CHROME_BIN
-        value: /usr/bin/google-chrome
