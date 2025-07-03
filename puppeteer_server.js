@@ -110,4 +110,28 @@ async function handleScrapeRequest(req, res) {
     });
 
   } catch (error) {
-    console.error
+    console.error(`❌ Scraping failed:`, error.message);
+
+    const errOut = {
+      success: false,
+      error: 'Scraping failed',
+      details: error.message,
+      timestamp: new Date().toISOString()
+    };
+
+    if (error.message.includes('chrome') || error.message.includes('chromium')) {
+      errOut.error = 'Chrome launch error';
+      errOut.fallback_suggestion = 'Use ScraperAPI or Cheerio fallback';
+    } else if (error.message.includes('timeout')) {
+      errOut.error = 'Navigation timeout';
+    } else if (error.message.includes('net::ERR_')) {
+      errOut.error = 'Navigation failed';
+    }
+
+    res.status(500).json(errOut);
+  }
+}
+
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`✅ Puppeteer server running at http://0.0.0.0:${PORT}`);
+});
