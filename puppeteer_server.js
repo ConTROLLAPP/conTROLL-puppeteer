@@ -70,7 +70,7 @@ async function handleScrapeRequest(req, res) {
 
     const browser = await puppeteer.launch({
       headless: 'new',
-      executablePath: '/usr/bin/google-chrome', // Ensure this path matches Chrome in your Dockerfile!
+      executablePath: '/usr/bin/chromium',
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
